@@ -2,6 +2,7 @@
   "name": "learn-webgl",
   "private": true,
   "version": "0.0.0",
+  "type": "commonjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,5 +11,8 @@
   "devDependencies": {
     "typescript": "^4.5.4",
     "vite": "^2.9.9"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.4.3"
   }
 }
