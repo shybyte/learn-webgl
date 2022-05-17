@@ -51,7 +51,10 @@ export function loadShader(gl: WebGLRenderingContext, type: GLenum, source: stri
 
 export interface ProgramInfo {
   program: WebGLProgram
-  attribLocations: { vertexPosition: number };
+  attribLocations: {
+    vertexPosition: GLint,
+    vertexColor?: GLint
+  };
   uniformLocations: {
     projectionMatrix: WebGLUniformLocation;
     modelViewMatrix: WebGLUniformLocation
