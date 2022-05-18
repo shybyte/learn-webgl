@@ -53,12 +53,14 @@ export interface ProgramInfo {
   program: WebGLProgram
   attribLocations: {
     vertexPosition: GLint;
+    vertexNormal?: GLint;
     vertexColor?: GLint;
     textureCoord?: GLint;
   };
   uniformLocations: {
     projectionMatrix: WebGLUniformLocation;
     modelViewMatrix: WebGLUniformLocation;
+    normalMatrix: WebGLUniformLocation;
     uSampler?: WebGLUniformLocation;
   };
 }
