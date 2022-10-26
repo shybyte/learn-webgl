@@ -6,10 +6,6 @@ import {
   setProgramAttributeToMyBuffer,
 } from "./invent-utils";
 
-const matrix = mat4.create();
-const result = mat4.translate(mat4.create(), matrix, [2, 4, 1]);
-console.log('result:', result);
-
 export function main() {
   console.log('Starting main...');
 
@@ -60,10 +56,12 @@ export function main() {
 
   gl.useProgram(program);
 
+  setProgramAttributeToMyBuffer(gl, program, 'position', positionBuffer);
+  setProgramAttributeToMyBuffer(gl, program, 'color', colorBuffer);
+
   const uniformLocations = {
     matrix: gl.getUniformLocation(program, 'matrix')
   };
-
 
   const matrix = mat4.create();
   mat4.translate(matrix, matrix, [0.1, 0.1, 0]);
@@ -73,14 +71,11 @@ export function main() {
     requestAnimationFrame(animate);
 
     mat4.rotateZ(matrix, matrix, 0.01);
-    setProgramAttributeToMyBuffer(gl, program, 'position', positionBuffer);
-    setProgramAttributeToMyBuffer(gl, program, 'color', colorBuffer);
-
     gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
     gl.drawArrays(gl.TRIANGLES, 0, positionBuffer.length);
   }
 
-  animate()
+  animate();
 
   console.log('Starting main finished.');
 }
