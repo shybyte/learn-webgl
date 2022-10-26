@@ -1,10 +1,6 @@
 import {mat4} from 'gl-matrix'
 
-import {
-  createMyBuffer,
-  createProgram, loadTexture, repeat,
-  setProgramAttributeToMyBuffer,
-} from "./invent-utils";
+import {createMyBuffer, createProgram, loadTexture, repeat, setProgramAttributeToMyBuffer,} from "./invent-utils";
 
 export function main() {
   console.log('Starting main...');
@@ -20,14 +16,13 @@ export function main() {
   }
 
   const vertexData = [
-
     // Front
-    0.5, 0.5, 0.5,
-    0.5, -.5, 0.5,
-    -.5, 0.5, 0.5,
-    -.5, 0.5, 0.5,
-    0.5, -.5, 0.5,
-    -.5, -.5, 0.5,
+    0.5, 0.5, 0.5, // top right
+    0.5, -.5, 0.5, // bottom right
+    -.5, 0.5, 0.5, // top left
+    -.5, 0.5, 0.5, // top left
+    0.5, -.5, 0.5, // bottom right
+    -.5, -.5, 0.5, // bottom left
 
     // Left
     -.5, 0.5, 0.5,
@@ -45,13 +40,12 @@ export function main() {
     -.5, -.5, -.5,
     0.5, -.5, -.5,
 
-    // Right
     0.5, 0.5, -.5,
     0.5, -.5, -.5,
     0.5, 0.5, 0.5,
     0.5, 0.5, 0.5,
+    0.5, -.5, -0.5,
     0.5, -.5, 0.5,
-    0.5, -.5, -.5,
 
     // Top
     0.5, 0.5, 0.5,
@@ -61,7 +55,7 @@ export function main() {
     0.5, 0.5, -.5,
     -.5, 0.5, -.5,
 
-    // Bottom
+    // Underside
     0.5, -.5, 0.5,
     0.5, -.5, -.5,
     -.5, -.5, 0.5,
@@ -81,12 +75,10 @@ export function main() {
     1, 0, // bottom right
     0, 0  // bottom left
   ]);
-  const uvBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
 
+  const uvBuffer = createMyBuffer(gl, uvData, 2);
 
-  const brick = loadTexture(gl, `textures/default_brick.png`);
+  const brick = loadTexture(gl, `textures/invent-box-logo-512px.jpg`);
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, brick);
 
@@ -121,11 +113,7 @@ export function main() {
   gl.enable(gl.DEPTH_TEST);
 
   setProgramAttributeToMyBuffer(gl, program, 'position', positionBuffer);
-
-  const uvLocation = gl.getAttribLocation(program, `uv`);
-  gl.enableVertexAttribArray(uvLocation);
-  gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-  gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+  setProgramAttributeToMyBuffer(gl, program, 'uv', uvBuffer);
 
   const uniformLocations = {
     matrix: gl.getUniformLocation(program, 'matrix'),
@@ -135,7 +123,7 @@ export function main() {
   gl.uniform1i(uniformLocations.textureID, 0);
 
   const modelMatrix = mat4.create();
-  mat4.translate(modelMatrix, modelMatrix, [0, 0, -2]);
+  mat4.translate(modelMatrix, modelMatrix, [0, 0, -1]);
   // mat4.scale(modelMatrix, modelMatrix, [1, 1, 1]);
 
   const projectionMatrix = mat4.create();

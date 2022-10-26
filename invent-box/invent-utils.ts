@@ -17,6 +17,7 @@ export function createProgram(gl: WebGLRenderingContext, vertexShaderSrc: string
 
 interface MyBuffer {
   length: number;
+  size: number;
   webglBuffer: WebGLBuffer;
 }
 
@@ -27,9 +28,10 @@ export function createBuffer(gl: WebGLRenderingContext, data: number[]): WebGLBu
   return buffer;
 }
 
-export function createMyBuffer(gl: WebGLRenderingContext, data: number[]): MyBuffer {
+export function createMyBuffer(gl: WebGLRenderingContext, data: number[], size = 3): MyBuffer {
   return {
-    length: data.length / 3,
+    size: size,
+    length: data.length / size,
     webglBuffer: createBuffer(gl, data),
   };
 }
@@ -38,12 +40,12 @@ export function setProgramAttributeToMyBuffer(
   gl: WebGLRenderingContext,
   program: WebGLProgram,
   attributeName: string,
-  myBuffer: MyBuffer
+  myBuffer: MyBuffer,
 ) {
   const location = gl.getAttribLocation(program, attributeName);
   gl.enableVertexAttribArray(location);
   gl.bindBuffer(gl.ARRAY_BUFFER, myBuffer.webglBuffer);
-  gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(location, myBuffer.size, gl.FLOAT, false, 0, 0);
 }
 
 export function loadTexture(
