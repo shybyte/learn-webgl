@@ -1,6 +1,13 @@
 import {mat4} from 'gl-matrix'
 
-import {createMyBuffer, createProgram, loadTexture, repeat, setProgramAttributeToMyBuffer,} from "./invent-utils";
+import {
+  createMyBuffer,
+  createProgram,
+  loadAndBindTexture,
+  loadTexture,
+  repeat,
+  setProgramAttributeToMyBuffer,
+} from "./invent-utils";
 
 export function main() {
   console.log('Starting main...');
@@ -82,6 +89,9 @@ export function main() {
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, brick);
 
+  const TEXTURE_ID = 0;
+  loadAndBindTexture(gl, `textures/invent-box-logo-512px.jpg`, TEXTURE_ID);
+
   // language=glsl
   const program = createProgram(gl, `
       precision mediump float;
@@ -90,7 +100,7 @@ export function main() {
       attribute vec2 uv;
 
       varying vec2 vUV;
-      
+
       uniform mat4 matrix;
 
       void main() {
@@ -120,7 +130,7 @@ export function main() {
     textureID: gl.getUniformLocation(program, 'textureID'),
   };
 
-  gl.uniform1i(uniformLocations.textureID, 0);
+  gl.uniform1i(uniformLocations.textureID, TEXTURE_ID);
 
   const modelMatrix = mat4.create();
   mat4.translate(modelMatrix, modelMatrix, [0, 0, -1]);
@@ -135,7 +145,7 @@ export function main() {
   );
 
   const viewMatrix = mat4.create();
-  mat4.translate(viewMatrix, viewMatrix, [0, -0 , 1]);
+  mat4.translate(viewMatrix, viewMatrix, [0, -0, 1]);
   mat4.invert(viewMatrix, viewMatrix);
 
   const mvMatrix = mat4.create();
@@ -144,7 +154,7 @@ export function main() {
   function animate() {
     requestAnimationFrame(animate);
 
-    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI/2 / 100);
+    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 2 / 100);
     mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 2 / 70);
     mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
     mat4.multiply(finalMatrix, projectionMatrix, mvMatrix);

@@ -65,6 +65,15 @@ export function loadTexture(
   return texture;
 }
 
+export function loadAndBindTexture(
+  gl: WebGLRenderingContext,
+  url: string,
+  textureID: number
+) {
+  const brick = loadTexture(gl, url);
+  gl.activeTexture(gl.TEXTURE0 + textureID);
+  gl.bindTexture(gl.TEXTURE_2D, brick);
+}
 
 // Construct an Array by repeating `pattern` n times
 export function repeat<T>(n: number, pattern: T | T[]): T[] {
