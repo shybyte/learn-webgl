@@ -45,3 +45,26 @@ export function setProgramAttributeToMyBuffer(
   gl.bindBuffer(gl.ARRAY_BUFFER, myBuffer.webglBuffer);
   gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
 }
+
+export function loadTexture(
+  gl: WebGLRenderingContext,
+  url: string
+) {
+  const texture = gl.createTexture();
+  const image = new Image();
+
+  image.onload = _e => {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+  };
+
+  image.src = url;
+  return texture;
+}
+
+
+// Construct an Array by repeating `pattern` n times
+export function repeat<T>(n: number, pattern: T | T[]): T[] {
+  return [...Array(n)].reduce(sum => sum.concat(pattern), []);
+}

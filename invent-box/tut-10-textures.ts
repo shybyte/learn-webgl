@@ -2,7 +2,7 @@ import {mat4} from 'gl-matrix'
 
 import {
   createMyBuffer,
-  createProgram,
+  createProgram, loadTexture, repeat,
   setProgramAttributeToMyBuffer,
 } from "./invent-utils";
 
@@ -72,28 +72,48 @@ export function main() {
 
   const positionBuffer = createMyBuffer(gl, vertexData);
 
+  const uvData = repeat(6, [
+    1, 1, // top right
+    1, 0, // bottom right
+    0, 1, // top left
+
+    0, 1, // top left
+    1, 0, // bottom right
+    0, 0  // bottom left
+  ]);
+  const uvBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvData), gl.STATIC_DRAW);
+
+
+  const brick = loadTexture(gl, `textures/default_brick.png`);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, brick);
+
   // language=glsl
   const program = createProgram(gl, `
       precision mediump float;
 
       attribute vec3 position;
-      attribute vec3 color;
-      varying vec3 vColor;
+      attribute vec2 uv;
 
+      varying vec2 vUV;
+      
       uniform mat4 matrix;
 
       void main() {
-        vColor = position.xyz;
+        vUV = uv;
         gl_Position = matrix * vec4(position, 1);
       }`
     ,
     `
       precision mediump float;
 
-      varying vec3 vColor;
+      varying vec2 vUV;
+      uniform sampler2D textureID;
 
       void main() {
-        gl_FragColor = vec4(vColor, 1);
+        gl_FragColor = texture2D(textureID, vUV);
       }`
   );
 
@@ -102,9 +122,17 @@ export function main() {
 
   setProgramAttributeToMyBuffer(gl, program, 'position', positionBuffer);
 
+  const uvLocation = gl.getAttribLocation(program, `uv`);
+  gl.enableVertexAttribArray(uvLocation);
+  gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+  gl.vertexAttribPointer(uvLocation, 2, gl.FLOAT, false, 0, 0);
+
   const uniformLocations = {
-    matrix: gl.getUniformLocation(program, 'matrix')
+    matrix: gl.getUniformLocation(program, 'matrix'),
+    textureID: gl.getUniformLocation(program, 'textureID'),
   };
+
+  gl.uniform1i(uniformLocations.textureID, 0);
 
   const modelMatrix = mat4.create();
   mat4.translate(modelMatrix, modelMatrix, [0, 0, -2]);
