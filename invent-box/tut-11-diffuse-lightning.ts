@@ -4,7 +4,6 @@ import {
   createMyBuffer,
   createProgram,
   loadAndBindTexture,
-  loadTexture,
   repeat,
   setProgramAttributeToMyBuffer,
 } from "./invent-utils";
@@ -84,10 +83,6 @@ export function main() {
   ]);
 
   const uvBuffer = createMyBuffer(gl, uvData, 2);
-
-  const brick = loadTexture(gl, `textures/invent-box-logo-512px.jpg`);
-  gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, brick);
 
   const TEXTURE_ID = 0;
   loadAndBindTexture(gl, `textures/invent-box-logo-512px.jpg`, TEXTURE_ID);
