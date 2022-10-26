@@ -19,18 +19,71 @@ export function main() {
     throw new Error('WebGL is not supported');
   }
 
-  const positionBuffer = createMyBuffer(gl, [
-    0, 1, 0, // middle top
-    1, -1, 0, // right bottom
-    -1, -1, 0 // left bottom
-  ]);
+  const vertexData = [
 
-  const colorBuffer = createMyBuffer(gl, [
-    1, 0, 0, // middle top - red
-    0, 1, 0, // right bottom - green
-    0, 0, 1, // left bottom - blue
-  ]);
+    // Front
+    0.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    -.5, 0.5, 0.5,
+    -.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    -.5, -.5, 0.5,
 
+    // Left
+    -.5, 0.5, 0.5,
+    -.5, -.5, 0.5,
+    -.5, 0.5, -.5,
+    -.5, 0.5, -.5,
+    -.5, -.5, 0.5,
+    -.5, -.5, -.5,
+
+    // Back
+    -.5, 0.5, -.5,
+    -.5, -.5, -.5,
+    0.5, 0.5, -.5,
+    0.5, 0.5, -.5,
+    -.5, -.5, -.5,
+    0.5, -.5, -.5,
+
+    // Right
+    0.5, 0.5, -.5,
+    0.5, -.5, -.5,
+    0.5, 0.5, 0.5,
+    0.5, 0.5, 0.5,
+    0.5, -.5, 0.5,
+    0.5, -.5, -.5,
+
+    // Top
+    0.5, 0.5, 0.5,
+    0.5, 0.5, -.5,
+    -.5, 0.5, 0.5,
+    -.5, 0.5, 0.5,
+    0.5, 0.5, -.5,
+    -.5, 0.5, -.5,
+
+    // Bottom
+    0.5, -.5, 0.5,
+    0.5, -.5, -.5,
+    -.5, -.5, 0.5,
+    -.5, -.5, 0.5,
+    0.5, -.5, -.5,
+    -.5, -.5, -.5,
+  ];
+
+  function randomColor() {
+    return [Math.random(), Math.random(), Math.random()];
+  }
+
+  const colorData = [];
+  for (let face = 0; face < 6; face++) {
+    let faceColor = randomColor();
+    for (let vertex = 0; vertex < 6; vertex++) {
+      colorData.push(...faceColor);
+    }
+  }
+
+  const positionBuffer = createMyBuffer(gl, vertexData);
+  const colorBuffer = createMyBuffer(gl, colorData);
 
   // language=glsl
   const program = createProgram(gl, `
@@ -58,6 +111,7 @@ export function main() {
   );
 
   gl.useProgram(program);
+  gl.enable(gl.DEPTH_TEST);
 
   setProgramAttributeToMyBuffer(gl, program, 'position', positionBuffer);
   setProgramAttributeToMyBuffer(gl, program, 'color', colorBuffer);
@@ -67,13 +121,12 @@ export function main() {
   };
 
   const matrix = mat4.create();
-  mat4.translate(matrix, matrix, [0.1, 0.1, 0]);
-  mat4.scale(matrix, matrix, [0.5, 0.5, 0]);
 
   function animate() {
     requestAnimationFrame(animate);
 
-    mat4.rotateZ(matrix, matrix, 0.01);
+    mat4.rotateZ(matrix, matrix, Math.PI/2 / 70);
+    mat4.rotateX(matrix, matrix, Math.PI/2 / 70);
     gl.uniformMatrix4fv(uniformLocations.matrix, false, matrix);
     gl.drawArrays(gl.TRIANGLES, 0, positionBuffer.length);
   }
