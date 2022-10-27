@@ -112,3 +112,27 @@ export function loadAndBindTexture(
 export function repeat<T>(n: number, pattern: T | T[]): T[] {
   return [...Array(n)].reduce(sum => sum.concat(pattern), []);
 }
+
+
+export function renderLoop(callback: (deltaTime: number, fps: number, frameCount: number) => void) {
+  let msLastFrame: number;
+  let frameCount = 0;
+  let lastFps: number;
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const msCurrent = performance.now();
+    const deltaTime = msLastFrame ? (msCurrent - msLastFrame) / 1000.0 : 1;
+    const fps = lastFps
+      ? (Math.floor(1 / deltaTime) + lastFps * 49) / 50
+      : Math.floor(1 / deltaTime);
+    msLastFrame = msCurrent;
+    lastFps = fps;
+
+    callback(deltaTime, Math.ceil(fps), frameCount);
+    frameCount += 1;
+  }
+
+  animate();
+}
