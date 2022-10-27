@@ -1,16 +1,47 @@
-export function createProgram(gl: WebGLRenderingContext, vertexShaderSrc: string, fragmentShaderSrc: string): WebGLProgram {
-  const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
-  gl.shaderSource(vertexShader, vertexShaderSrc);
-  gl.compileShader(vertexShader);
+function createShader(gl: WebGL2RenderingContext, src: string, type: GLenum) {
+  const shader = gl.createShader(type)!;
+  gl.shaderSource(shader, src);
+  gl.compileShader(shader);
 
-  const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
-  gl.shaderSource(fragmentShader, fragmentShaderSrc);
-  gl.compileShader(fragmentShader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    const shaderInfoLog = gl.getShaderInfoLog(shader);
+    gl.deleteShader(shader);
+    throw new Error("Error compiling shader : " + shaderInfoLog);
+  }
+
+  return shader;
+}
+
+export function createProgram(gl: WebGL2RenderingContext, vertexShaderSrc: string, fragmentShaderSrc: string): WebGLProgram {
+  const vertexShader = createShader(gl, vertexShaderSrc, gl.VERTEX_SHADER)!;
+  const fragmentShader = createShader(gl, fragmentShaderSrc, gl.FRAGMENT_SHADER)!;
 
   const program = gl.createProgram()!;
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
+
+  //Check if successful
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    const programInfoLog = gl.getProgramInfoLog(program);
+    gl.deleteProgram(program);
+    throw new Error("Error creating shader program." + programInfoLog);
+  }
+
+  //Only do this for additional debugging.
+  gl.validateProgram(program);
+  if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
+    const programInfoLog = gl.getProgramInfoLog(program);
+    gl.deleteProgram(program);
+    throw new Error("Error creating shader program." + programInfoLog);
+  }
+
+  // Can delete the shaders since the program has been made.
+  // Is this really needed?
+  gl.detachShader(program, vertexShader); // detaching might cause issues on some browsers, Might only need to delete.
+  gl.detachShader(program, fragmentShader);
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
 
   return program;
 }
@@ -21,14 +52,15 @@ interface MyBuffer {
   webglBuffer: WebGLBuffer;
 }
 
-export function createBuffer(gl: WebGLRenderingContext, data: number[]): WebGLBuffer {
+export function createBuffer(gl: WebGL2RenderingContext, data: number[]): WebGLBuffer {
   const buffer = gl.createBuffer()!;
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
   return buffer;
 }
 
-export function createMyBuffer(gl: WebGLRenderingContext, data: number[], size = 3): MyBuffer {
+export function createMyBuffer(gl: WebGL2RenderingContext, data: number[], size = 3): MyBuffer {
   return {
     size: size,
     length: data.length / size,
@@ -37,7 +69,7 @@ export function createMyBuffer(gl: WebGLRenderingContext, data: number[], size =
 }
 
 export function setProgramAttributeToMyBuffer(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   program: WebGLProgram,
   attributeName: string,
   myBuffer: MyBuffer,
@@ -46,10 +78,11 @@ export function setProgramAttributeToMyBuffer(
   gl.enableVertexAttribArray(location);
   gl.bindBuffer(gl.ARRAY_BUFFER, myBuffer.webglBuffer);
   gl.vertexAttribPointer(location, myBuffer.size, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
 }
 
 export function loadTexture(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   url: string
 ) {
   const texture = gl.createTexture();
@@ -66,7 +99,7 @@ export function loadTexture(
 }
 
 export function loadAndBindTexture(
-  gl: WebGLRenderingContext,
+  gl: WebGL2RenderingContext,
   url: string,
   textureID: number
 ) {
