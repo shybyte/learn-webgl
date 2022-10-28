@@ -25,8 +25,8 @@ export function main() {
   void main(void){
     gl_PointSize = uPointSize;
     gl_Position = vec4(
-      cos(uAngle) * 0.1 + a_position.x,
-      sin(uAngle) * 0.1 + a_position.y,
+      cos(uAngle) * 0.2 + a_position.x,
+      sin(uAngle) * 0.2 + a_position.y,
       a_position.z,
       1.0
     );
@@ -42,7 +42,7 @@ export function main() {
   gl.useProgram(shaderProg);
 
   const vertexData = [];
-  for (let i = 0; i < 1_000; i++) {
+  for (let i = 0; i < 10_000; i++) {
     vertexData.push(Math.random() - 0.5);
     vertexData.push(Math.random() - 0.5);
     vertexData.push(0);
